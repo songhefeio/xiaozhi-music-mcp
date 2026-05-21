@@ -261,6 +261,8 @@ async def call_tool(name: str, arguments: dict[str, Any]) -> list[TextContent]:
 
 # ---------- SSE 服务启动 ----------
 
+from starlette.responses import Response
+
 sse = SseServerTransport("/messages/")
 
 async def handle_sse(request):
@@ -270,6 +272,8 @@ async def handle_sse(request):
         await server.run(
             streams[0], streams[1], server.create_initialization_options()
         )
+    # 必须返回 Response，否则客户端断开时崩溃 (TypeError: 'NoneType' object is not callable)
+    return Response()
 
 app = Starlette(
     routes=[
